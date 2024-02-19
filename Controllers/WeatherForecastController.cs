@@ -35,33 +35,24 @@ public class WeatherForecastController : ControllerBase
     }
 
     [HttpGet]
-    public HttpResponseMessage Download()
-     {
-        var wb = BuildExcelFile(10);
-        var memoryStream = new MemoryStream();
-        wb.SaveAs(memoryStream);
-        memoryStream.Seek(0, SeekOrigin.Begin);
+    public FileContentResult Download()
+    {
+      var wb = BuildExcelFile(10);
+      var memoryStream = new MemoryStream();
+      wb.SaveAs(memoryStream);
+      memoryStream.Seek(0, SeekOrigin.Begin);
 
-        var message = new HttpResponseMessage(HttpStatusCode.OK)
-          {
-           Content = new StreamContent(memoryStream)
-          };
-        var contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-        message.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
-            message.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-            {
-                FileName = "test.xlsx"
-            };
-
-         return message;
-     }
+      byte[] data = memoryStream.ToArray();
+      string fileName = "test.xlsx";
+      return File(data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+    }
 
     private XLWorkbook BuildExcelFile(int id)
-     {
-        //Creating the workbook
-        var wb = new XLWorkbook();
-        var ws = wb.AddWorksheet("Sheet1");
-        ws.FirstCell().SetValue(id);
-        return wb;
-     }
+    {
+      //Creating the workbook
+      var wb = new XLWorkbook();
+      var ws = wb.AddWorksheet("Sheet1");
+      ws.FirstCell().SetValue(id);
+      return wb;
+    }
 }
